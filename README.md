@@ -3,7 +3,7 @@
 - 🌱 I’m currently practising Advanced Machine Learning in Python.
 - 📫 You can reach me with Zhen1624_@hotmail.com
 - I upload my finished projects here.
-- Be hungry for knowledge!
+- Be hungry for knowledge.
 
 <!---
 Shuzhentan/Shuzhentan is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.

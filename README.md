@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @Shuzhentan
 - 👀 I’m interested in Statistical Modeling and Machine Learning Modeling.
-- 🌱 I’m currently Advanced Machine Leaning in Python.
+- 🌱 I’m currently practicing Advanced Machine Learning in Python.
 - 📫 You can reach me with Zhen1624_@hotmail.com
 - I upload my finished projects here.
 

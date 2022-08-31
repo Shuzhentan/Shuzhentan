@@ -16,6 +16,16 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "id": "d6209737",
+   "metadata": {},
+   "source": [
+    "This is a web scrapping + email automation project. \n",
+    "\n",
+    "It is still under construction because you can see that I have some problems with BeautifulSoup."
+   ]
+  },
+  {
    "cell_type": "code",
    "execution_count": 44,
    "id": "717f3ea4",

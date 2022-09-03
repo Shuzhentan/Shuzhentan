@@ -1,0 +1,659 @@
+This is my solutions for the book "SQL Practice Problems" by Sylvia Moestl Vasiliki.
+
+ 
+
+SELECT Categories.CategoryName, 
+COUNT(Products.ProductID) AS Total
+FROM Categories
+LEFT JOIN Products
+ON Products.CategoryID=Categories.CategoryID
+GROUP BY Categories.CategoryName
+ORDER BY Total DESC
+
+SELECT Country, City, COUNT(*) AS Total
+FROM Customers
+GROUP BY Country, City
+ORDER BY Total desc
+
+SELECT ProductID, 
+ProductName, 
+UnitsInStock, 
+ReorderLevel
+FROM Products
+WHERE UnitsInStock < ReorderLevel
+ORDER BY ProductID
+
+SELECT ProductID, 
+ProductName, 
+UnitsInStock, 
+UnitsOnOrder,
+ReorderLevel,
+Discontinued
+FROM Products
+WHERE UnitsInStock+UnitsOnOrder <= ReorderLevel AND
+Discontinued=0
+ORDER BY ProductID
+
+SELECT CustomerID, CompanyName, Region
+FROM Customers
+ORDER BY 
+	CASE
+		WHEN Region IS NULL THEN 1
+		ELSE 0
+	END
+, Region, CustomerID
+
+
+SELECT TOP 3
+ShipCountry, AVG(Freight) AS AveFreight 
+FROM Orders
+GROUP BY ShipCountry
+ORDER BY AveFreight DESC
+-- OFFSET 0 ROWS FETCH FIRST 3 ROWS ONLY
+
+SELECT * FROM Orders
+
+SELECT TOP 3
+ShipCountry, AVG(Freight) AS AveFreight
+FROM Orders
+WHERE YEAR(OrderDate)= 1996
+GROUP BY ShipCountry
+ORDER BY AveFreight DESC
+/*WHERE OrderDate>='20150101' AND OrderDate<'20160101'
+*/
+
+
+SELECT TOP 3
+ShipCountry, AVG(Freight) AS AveFreight, 
+CONVERT(date, OrderDate)
+FROM Orders
+WHERE OrderDate>= DATEADD(MONTH, -12, MAX(OrderDate)) AND
+OrderDate <= MAX(OrderDate)
+GROUP BY ShipCountry
+ORDER BY AveFreight DESC
+
+
+SELECT TOP 3
+ShipCountry, AVG(Freight) AS AveFreight
+FROM Orders
+WHERE OrderDate>= 
+DATEADD(mm, -12, (SELECT MAX(OrderDate) FROM Orders))
+GROUP BY ShipCountry
+ORDER BY AveFreight DESC
+
+
+SELECT Employees.EmployeeID, Employees.LastName,
+Orders.OrderID, Products.ProductName,
+[Order Details].Quantity
+FROM Orders
+LEFT JOIN Employees
+ON Orders.EmployeeID=Employees.EmployeeID
+LEFT JOIN [Order Details]
+ON [Order Details].OrderID=Orders.OrderID
+LEFT JOIN Products
+ON [Order Details].ProductID=Products.ProductID
+ORDER BY OrderID, ProductID
+
+
+SELECT Customers.CustomerID, Orders.CustomerID
+FROM Orders
+	LEFT JOIN Customers
+		ON Orders.CustomerID=Customers.CustomerID
+WHERE Orders.CustomerID IS NULL
+
+
+SELECT CustomerID
+FROM Customers
+WHERE NOT EXISTS
+(SELECT CustomerID FROM Orders
+WHERE Customers.CustomerID=Orders.CustomerID)
+
+
+SELECT Customers.CustomerID, Orders.OrderID,
+Employees.EmployeeID
+FROM Customers
+LEFT JOIN Orders
+ON Customers.CustomerID=Orders.CustomerID
+LEFT JOIN Employees
+ON Orders.EmployeeID=Employees.EmployeeID
+WHERE Employees.EmployeeID<>4
+
+
+SELECT Customers.CustomerID, Orders.CustomerID
+FROM Customers
+LEFT JOIN Orders
+ON Customers.CustomerID=Orders.CustomerID
+-- WHERE Orders.EmployeeID<>4 AND Orders.EmployeeID IS NULL
+
+
+SELECT CustomerID
+FROM Customers
+WHERE NOT EXISTS(
+	SELECT * 
+	FROM Orders
+	WHERE Customers.CustomerID=Orders.CustomerID
+)
+
+SELECT Customers.CustomerID, Orders.CustomerID
+FROM Customers
+	LEFT JOIN Orders
+	ON Customers.CustomerID=Orders.CustomerID
+WHERE Orders.CustomerID IS NULL
+
+SELECT CustomerID
+FROM Customers
+WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders)
+
+
+SELECT Customers.CustomerID
+FROM Customers
+WHERE Customers.CustomerID NOT IN 
+(SELECT CustomerID FROM Orders WHERE EmployeeID=4)
+
+SELECT Customers.CustomerID, Orders.CustomerID
+FROM Customers
+	LEFT JOIN Orders
+	ON Customers.CustomerID=Orders.CustomerID
+	AND Orders.EmployeeID=4
+WHERE Orders.CustomerID IS NULL
+
+SELECT CustomerID
+FROM Customers
+WHERE NOT EXISTS(
+	SELECT * FROM Orders
+	WHERE Orders.CustomerID=Customers.CustomerID AND 
+	Orders.EmployeeID=4 
+)
+
+SELECT Customers.CustomerID, Orders.OrderID,
+	TotalValue=SUM([Order Details].UnitPrice*
+	[Order Details].Quantity)
+FROM Orders
+	LEFT JOIN Customers
+	ON Orders.CustomerID=Customers.CustomerID
+	LEFT JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+WHERE YEAR(Orders.OrderDate)=1998
+GROUP BY Customers.CustomerID, Orders.OrderID
+HAVING SUM([Order Details].UnitPrice*
+	[Order Details].Quantity)>10000 
+ORDER BY TotalValue DESC
+
+
+SELECT Customers.CustomerID, Orders.OrderID,
+	Total=[Order Details].UnitPrice*
+		  [Order Details].Quantity
+FROM Orders
+	LEFT JOIN Customers
+	ON Orders.CustomerID=Customers.CustomerID
+	LEFT JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+WHERE 
+--		YEAR(Orders.OrderDate)=1998 AND
+		[Order Details].UnitPrice*
+		  [Order Details].Quantity>10000		
+		
+SELECT Customers.CustomerID,
+	TotalValue=SUM([Order Details].UnitPrice*
+	[Order Details].Quantity*(1-[Order Details].Discount))
+FROM Orders
+	LEFT JOIN Customers
+	ON Orders.CustomerID=Customers.CustomerID
+	LEFT JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+WHERE YEAR(Orders.OrderDate)=1998
+GROUP BY Customers.CustomerID
+HAVING SUM([Order Details].UnitPrice*
+	[Order Details].Quantity*(1-[Order Details].Discount))>10000 
+ORDER BY TotalValue DESC
+
+SELECT OrderID, EmployeeID, OrderDate
+FROM Orders
+WHERE Convert(DATE,OrderDate)=EOMONTH(OrderDate)
+ORDER BY EmployeeID, OrderID
+
+SELECT TOP 10
+Orders.OrderID, TotalOrderDetails=COUNT(*)
+FROM Orders
+	JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+GROUP BY Orders.OrderID
+ORDER BY TotalOrderDetails DESC
+
+SELECT TOP 2 PERCENT
+	OrderID
+FROM Orders
+ORDER BY NewID()
+
+SELECT
+	Orders.OrderID, 
+	[Order Details].Quantity
+FROM Employees
+LEFT JOIN Orders
+ON Employees.EmployeeID=Orders.EmployeeID
+LEFT JOIN [Order Details]
+ON Orders.OrderID=[Order Details].OrderID
+WHERE [Order Details].Quantity>=60 AND 
+		Employees.FirstName='Janet' AND 
+		Employees.LastName='Leverling'
+GROUP BY Orders.OrderID, [Order Details].Quantity
+HAVING Count(*)>0
+ORDER BY Orders.OrderID
+
+
+SELECT OrderID
+FROM [Order Details]
+WHERE Quantity>=60
+GROUP BY OrderID, Quantity
+HAVING COUNT(*)>1
+
+
+WITH DuplicateOrder AS(
+	SELECT OrderID
+	FROM [Order Details]
+	WHERE Quantity>=60
+	GROUP BY OrderID, Quantity
+	HAVING COUNT(*)>1
+)
+SELECT *
+FROM [Order Details]
+WHERE OrderID IN (SELECT OrderID FROM DuplicateOrder)
+
+
+SELECT *
+FROM [Order Details]
+JOIN (
+	SELECT OrderID
+	FROM [Order Details]
+	WHERE Quantity>=60
+	GROUP BY OrderID, Quantity
+	HAVING COUNT(*)>1
+) AS DuplicateOrders
+ON DuplicateOrders.OrderID=[Order Details].OrderID
+ORDER BY [Order Details].OrderID, [Order Details].ProductID
+
+
+Select
+OrderID
+From [Order Details]
+Where Quantity >= 60
+Group By OrderID, Quantity
+Having Count(*) > 1
+
+
+SELECT OrderID, OrderDate, RequiredDate, ShippedDate
+FROM Orders
+WHERE ShippedDate>= RequiredDate
+
+
+SELECT Employees.EmployeeID, Employees.LastName,
+	COUNT(*) AS TotalLateOrders
+FROM Orders
+LEFT JOIN Employees
+ON Orders.EmployeeID=Employees.EmployeeID
+WHERE ShippedDate>= RequiredDate
+GROUP BY Employees.EmployeeID, Employees.LastName
+ORDER BY TotalLateOrders DESC
+
+
+WITH LateEMP AS(	
+	SELECT Employees.EmployeeID, Employees.LastName,
+		COUNT(*) AS TotalLateOrders
+	FROM Orders
+	LEFT JOIN Employees
+	ON Orders.EmployeeID=Employees.EmployeeID
+	WHERE ShippedDate>= RequiredDate
+	GROUP BY Employees.EmployeeID, Employees.LastName
+-- 	ORDER BY TotalLateOrders DESC
+)
+SELECT Employees.EmployeeID, Employees.LastName,
+	COUNT(*) AS AllOrders, LateEMP.TotalLateOrders
+FROM Employees
+JOIN LateEMP
+ON Employees.EmployeeID=LateEMP.EmployeeID
+JOIN Orders
+ON Employees.EmployeeID=Orders.EmployeeID
+GROUP BY Employees.EmployeeID, Employees.LastName
+
+
+WITH totallateorders AS(
+	SELECT EmployeeID, COUNT(*) AS lateorders
+	FROM Orders
+	WHERE ShippedDate>=RequiredDate
+	GROUP BY EmployeeID
+),
+	totalorders AS(
+	SELECT EmployeeID, COUNT(*) AS totalorders
+	FROM Orders
+	GROUP BY EmployeeID
+	)
+SELECT Employees.EmployeeID, Employees.LastName,
+		totalorders.totalorders,
+		ISNULL(totallateorders.lateorders, 0)
+FROM Employees
+	JOIN totallateorders
+	ON Employees.EmployeeID=totallateorders.EmployeeID
+	RIGHT JOIN totalorders
+	ON totallateorders.EmployeeID=totalorders.EmployeeID
+	
+
+
+WITH totallateorders AS(
+	SELECT EmployeeID, COUNT(*) AS lateorders
+	FROM Orders
+	WHERE ShippedDate>=RequiredDate
+	GROUP BY EmployeeID
+),
+	totalorders AS(
+	SELECT EmployeeID, COUNT(*) AS totalorders
+	FROM Orders
+	GROUP BY EmployeeID
+	)
+SELECT Employees.EmployeeID, Employees.LastName,
+		totalorders.totalorders,
+		lateorders = 
+			CASE 
+				WHEN totallateorders.lateorders IS NULL THEN 0
+				ELSE totallateorders.lateorders
+			END
+FROM Employees
+	JOIN totallateorders
+	ON Employees.EmployeeID=totallateorders.EmployeeID
+	RIGHT JOIN totalorders
+	ON totallateorders.EmployeeID=totalorders.EmployeeID
+
+
+WITH totallateorders AS(
+	SELECT EmployeeID, COUNT(*) AS lateorders
+	FROM Orders
+	WHERE ShippedDate>=RequiredDate
+	GROUP BY EmployeeID
+),
+	totalorders AS(
+	SELECT EmployeeID, COUNT(*) AS totalorders
+	FROM Orders
+	GROUP BY EmployeeID
+	)
+SELECT Employees.EmployeeID, Employees.LastName,
+		totalorders=totalorders.totalorders,
+		lateorders=ISNULL(totallateorders.lateorders, 0),
+		/*an integer divided by an integer returns an integer.
+		Sol: Convert an integer to a decimal datatype by multiplying
+		by 1.00*/
+		percentlateorders = CONVERT(DECIMAL(10,2), 
+		lateorders*1.00/totalorders)
+FROM Employees
+	JOIN totallateorders
+	ON Employees.EmployeeID=totallateorders.EmployeeID
+	RIGHT JOIN totalorders
+	ON totallateorders.EmployeeID=totalorders.EmployeeID;
+
+
+WITH totalamount AS(
+	SELECT Customers.CustomerID, 
+	SUM([Order Details].UnitPrice*[Order Details].Quantity) AS totalorderamount
+	FROM Orders
+	JOIN Customers
+	ON Customers.CustomerID=Orders.CustomerID
+	JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+	WHERE YEAR(Orders.OrderDate)=1998
+	GROUP BY Customers.CustomerID
+--	ORDER BY Customers.CustomerID
+)
+SELECT CustomerID, totalorderamount,
+	CustomerGroup= CASE 
+	-- use 'BETWEEN' for integer values, but not for Money
+				WHEN totalorderamount>=0 AND totalorderamount<1000 THEN 'LOW'
+				WHEN totalorderamount>=1000 AND totalorderamount<5000 THEN 'MEDIAN'
+				WHEN totalorderamount>=5000 AND totalorderamount<10000 THEN 'HIGH'
+				WHEN totalorderamount>=10000 THEN 'VERY HIGH'
+				END
+FROM totalamount;
+
+
+/*CASE
+	WHEN totalorderamount between 0 and 1000 then 'LOW'
+	WHEN totalorderamount between 1000 and 5000 then 'MEDIAN'
+	WHEN totalorderamount between 5000 and 10000 then 'HIGH'
+	WHEN totalorderamount>10000 then 'VERY HIGH'
+	END */
+
+-- Avoid repeated calculation as below:
+SELECT Customers.CustomerID, 
+	SUM([Order Details].UnitPrice*[Order Details].Quantity) AS totalorderamount,
+	CustomerGroup= CASE 
+				WHEN SUM([Order Details].UnitPrice*[Order Details].Quantity) 
+				between 0 and 1000 then 'LOW'
+				WHEN SUM([Order Details].UnitPrice*[Order Details].Quantity)
+				between 1000 and 5000 then 'MEDIAN'
+				WHEN SUM([Order Details].UnitPrice*[Order Details].Quantity)
+				between 5000 and 10000 then 'HIGH'
+				WHEN SUM([Order Details].UnitPrice*[Order Details].Quantity)>10000 
+				then 'VERY HIGH'
+				END
+FROM Orders
+JOIN Customers
+ON Customers.CustomerID=Orders.CustomerID
+JOIN [Order Details]
+ON Orders.OrderID=[Order Details].OrderID
+WHERE YEAR(Orders.OrderDate)=1998
+GROUP BY Customers.CustomerID;
+--	ORDER BY Customers.CustomerID
+
+
+WITH totalamount AS(
+	SELECT Customers.CustomerID, 
+	SUM([Order Details].UnitPrice*[Order Details].Quantity) AS totalorderamount
+	FROM Orders
+	JOIN Customers
+	ON Customers.CustomerID=Orders.CustomerID
+	JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+	WHERE YEAR(Orders.OrderDate)=1998
+	GROUP BY Customers.CustomerID
+--	ORDER BY Customers.CustomerID
+),
+customergrouping AS(
+	SELECT CustomerID, totalorderamount,
+	CustomerGroup= CASE 
+	-- use 'BETWEEN' for integer values, but not for Money
+				WHEN totalorderamount>=0 AND totalorderamount<1000 THEN 'LOW'
+				WHEN totalorderamount>=1000 AND totalorderamount<5000 THEN 'MEDIAN'
+				WHEN totalorderamount>=5000 AND totalorderamount<10000 THEN 'HIGH'
+				WHEN totalorderamount>=10000 THEN 'VERY HIGH'
+				END
+	FROM totalamount
+)
+SELECT CustomerGroup, numbers=Count(*),
+		percentgroup=Count(*)*1.0/(SELECT COUNT(*) FROM customergrouping)
+FROM customergrouping
+GROUP BY CustomerGroup
+ORDER BY numbers DESC	
+
+CREATE TABLE CustomerGroupThresholds(
+	RangeBottom FLOAT,
+	RangeTop FLOAT)
+
+INSERT INTO CustomerGroupThresholds
+VALUES (0, 1000)
+
+INSERT INTO CustomerGroupThresholds
+VALUES (1000, 5000)
+
+INSERT INTO CustomerGroupThresholds
+VALUES (5000, 10000)
+
+INSERT INTO CustomerGroupThresholds(RangeBottom)
+VALUES (10000)
+
+SELECT * FROM CustomerGroupThresholds;
+
+ALTER TABLE CustomerGroupThresholds
+ADD CustomerGroup VARCHAR(10);
+
+UPDATE  CustomerGroupThresholds
+SET CustomerGroup='LOW'
+WHERE RangeBottom=0
+
+UPDATE  CustomerGroupThresholds
+SET CustomerGroup='MEDIAN'
+WHERE RangeBottom=1000
+
+UPDATE  CustomerGroupThresholds
+SET CustomerGroup='HIGH'
+WHERE RangeBottom=5000
+
+UPDATE  CustomerGroupThresholds
+SET CustomerGroup='VERY HIGH'
+WHERE RangeBottom=10000
+
+SELECT * FROM CustomerGroupThresholds;
+
+
+WITH Order2016 AS(
+	SELECT Customers.CustomerID, 
+	SUM([Order Details].UnitPrice*[Order Details].Quantity) AS totalorderamount
+	FROM Orders
+	JOIN Customers
+	ON Customers.CustomerID=Orders.CustomerID
+	JOIN [Order Details]
+	ON Orders.OrderID=[Order Details].OrderID
+	WHERE YEAR(Orders.OrderDate)=1998
+	GROUP BY Customers.CustomerID
+--	ORDER BY Customers.CustomerID
+)
+SELECT CustomerID, totalorderamount,
+	CustomerGroup
+FROM Order2016
+JOIN CustomerGroupThresholds
+ON Order2016.totalorderamount>=CustomerGroupThresholds.RangeBottom AND 
+Order2016.totalorderamount<CustomerGroupThresholds.RangeTop
+--ON Order2016.totalorderamount between CustomerGroupThresholds.RangeBottom and
+--CustomerGroupThresholds.RangeTop
+
+
+SELECT DISTINCT Country
+FROM Suppliers
+UNION
+SELECT DISTINCT Country
+FROM Customers
+--UNION eliminates duplicates
+--UNION ALL does not eliminate duplicates
+
+SELECT DISTINCT Suppliers.Country AS SupplierCountry, Customers.Country AS CustomerCountry
+FROM Suppliers 
+FULL OUTER JOIN Customers
+ON Suppliers.Country=Customers.Country
+--ORDER BY Suppliers.Country
+
+
+WITH Countrylist AS(
+	SELECT DISTINCT Country
+	FROM Suppliers
+	UNION
+	SELECT DISTINCT Country
+	FROM Customers
+),
+TotalSuppliers AS(
+	SELECT Country, COUNT(*) AS TotalSuppliers
+	FROM Suppliers
+	GROUP BY Country
+),
+TotalCustomers AS(
+	SELECT Country, COUNT(*) AS TotalCustomers
+	FROM Customers
+	GROUP BY Country
+)
+SELECT Countrylist.Country, TotalSuppliers=ISNULL(TotalSuppliers.TotalSuppliers, 0),
+TotalCustomers=ISNULL(TotalCustomers.TotalCustomers,0)
+from Countrylist
+LEFT JOIN TotalSuppliers
+ON Countrylist.Country=TotalSuppliers.Country
+LEFT JOIN TotalCustomers
+ON Countrylist.Country=TotalCustomers.Country
+
+
+-- This is interesting. Play around with the code below:
+WITH TotalSuppliers AS(
+	SELECT Country, COUNT(*) AS TotalSuppliers
+	FROM Suppliers
+	GROUP BY Country
+),
+TotalCustomers AS(
+	SELECT Country, COUNT(*) AS TotalCustomers
+	FROM Customers
+	GROUP BY Country
+)
+--SELECT Country=ISNULL(TotalSuppliers.Country, TotalCustomers.Country)
+SELECT TotalSuppliers.Country
+from TotalSuppliers
+FULL OUTER JOIN TotalCustomers
+ON TotalSuppliers.Country=TotalCustomers.Country
+
+
+WITH FirstOrder AS(
+	SELECT ShipCountry, MIN(OrderDate) AS OrderDate
+	FROM Orders
+	GROUP BY ShipCountry
+)
+SELECT FirstOrder.ShipCountry, Orders.CustomerID, Orders.OrderID, Orders.OrderDate
+FROM FirstOrder
+LEFT JOIN Orders
+ON FirstOrder.ShipCountry=Orders.ShipCountry AND 
+FirstOrder.OrderDate=Orders.OrderDate
+ORDER BY FirstOrder.ShipCountry
+
+
+WITH OrdersByCountry AS(
+	SELECT ShipCountry, CustomerID, OrderID, OrderDate=CONVERT(DATE, OrderDate), RowNumberPerCountry=
+	Row_Number()
+		OVER (PARTITION BY ShipCountry ORDER BY OrderID)
+		FROM Orders
+)
+SELECT ShipCountry, CustomerID, OrderID, OrderDate
+FROM OrdersByCountry
+WHERE RowNumberPerCountry=1
+ORDER BY ShipCountry
+
+
+SELECT T1.CustomerID,
+		T1.OrderID AS InitialOrderID,
+		CONVERT(DATE, T1.OrderDate) AS InitialOrderDate, 
+		T2.OrderID AS NextOrderID,
+		CONVERT(DATE, T2.OrderDate) AS NextOrderDate, 
+		DATEDIFF(DAY, T1.OrderDate, T2.OrderDate) AS DayInterval
+FROM Orders T1, Orders T2
+WHERE
+	T1.CustomerID=T2.CustomerID
+	AND T2.OrderID>T1.OrderID
+	AND DATEDIFF(DAY, T1.OrderDate, T2.OrderDate)<= 5
+	ORDER BY T1.CustomerID;
+
+-- OR
+SELECT T1.CustomerID, T2.CustomerID,
+		T1.OrderID AS InitialOrderID,
+		CONVERT(DATE, T1.OrderDate) AS InitialOrderDate, 
+		T2.OrderID AS NextOrderID,
+		CONVERT(DATE, T2.OrderDate) AS NextOrderDate, 
+		DATEDIFF(DAY, T1.OrderDate, T2.OrderDate) AS DayInterval
+FROM Orders T1
+JOIN Orders T2
+ON T1.CustomerID=T2.CustomerID
+WHERE
+	T2.OrderID>T1.OrderID
+	AND DATEDIFF(DAY, T1.OrderDate, T2.OrderDate)<= 5
+ORDER BY T1.CustomerID;
+
+
+WITH OrderInterval AS(
+	SELECT CustomerID, OrderDate=CONVERT(DATE, OrderDate), 
+		NextOrderDate=LEAD(OrderDate, 1) 
+					OVER (PARTITION BY CustomerID ORDER BY OrderDate)
+	FROM Orders
+)
+SELECT CustomerID, OrderDate, 
+		NextOrderDate, DayInterval=DATEDIFF(DAY, OrderDate, NextOrderDate)
+FROM OrderInterval
+WHERE DATEDIFF(DAY, OrderDate, NextOrderDate)<=5
+

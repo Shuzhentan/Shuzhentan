@@ -5,10 +5,10 @@ because I did make reference to the answers when I got stuck or the answers were
  
 
 SELECT Categories.CategoryName, 
-COUNT(Products.ProductID) AS Total
+	COUNT(Products.ProductID) AS Total
 FROM Categories
-LEFT JOIN Products
-ON Products.CategoryID=Categories.CategoryID
+	LEFT JOIN Products
+	ON Products.CategoryID=Categories.CategoryID
 GROUP BY Categories.CategoryName
 ORDER BY Total DESC
 
@@ -18,22 +18,22 @@ GROUP BY Country, City
 ORDER BY Total desc
 
 SELECT ProductID, 
-ProductName, 
-UnitsInStock, 
-ReorderLevel
+	ProductName, 
+	UnitsInStock, 
+	ReorderLevel
 FROM Products
 WHERE UnitsInStock < ReorderLevel
 ORDER BY ProductID
 
 SELECT ProductID, 
-ProductName, 
-UnitsInStock, 
-UnitsOnOrder,
-ReorderLevel,
-Discontinued
+	ProductName, 
+	UnitsInStock, 
+	UnitsOnOrder,
+	ReorderLevel,
+	Discontinued
 FROM Products
 WHERE UnitsInStock+UnitsOnOrder <= ReorderLevel AND
-Discontinued=0
+	Discontinued=0
 ORDER BY ProductID
 
 SELECT CustomerID, CompanyName, Region
@@ -47,7 +47,7 @@ ORDER BY
 
 
 SELECT TOP 3
-ShipCountry, AVG(Freight) AS AveFreight 
+	ShipCountry, AVG(Freight) AS AveFreight 
 FROM Orders
 GROUP BY ShipCountry
 ORDER BY AveFreight DESC
@@ -56,7 +56,7 @@ ORDER BY AveFreight DESC
 SELECT * FROM Orders
 
 SELECT TOP 3
-ShipCountry, AVG(Freight) AS AveFreight
+	ShipCountry, AVG(Freight) AS AveFreight
 FROM Orders
 WHERE YEAR(OrderDate)= 1996
 GROUP BY ShipCountry
@@ -66,34 +66,34 @@ ORDER BY AveFreight DESC
 
 
 SELECT TOP 3
-ShipCountry, AVG(Freight) AS AveFreight, 
-CONVERT(date, OrderDate)
+	ShipCountry, AVG(Freight) AS AveFreight, 
+	CONVERT(date, OrderDate)
 FROM Orders
 WHERE OrderDate>= DATEADD(MONTH, -12, MAX(OrderDate)) AND
-OrderDate <= MAX(OrderDate)
+	OrderDate <= MAX(OrderDate)
 GROUP BY ShipCountry
 ORDER BY AveFreight DESC
 
 
 SELECT TOP 3
-ShipCountry, AVG(Freight) AS AveFreight
+	ShipCountry, AVG(Freight) AS AveFreight
 FROM Orders
 WHERE OrderDate>= 
-DATEADD(mm, -12, (SELECT MAX(OrderDate) FROM Orders))
+	DATEADD(mm, -12, (SELECT MAX(OrderDate) FROM Orders))
 GROUP BY ShipCountry
 ORDER BY AveFreight DESC
 
 
 SELECT Employees.EmployeeID, Employees.LastName,
-Orders.OrderID, Products.ProductName,
-[Order Details].Quantity
+	Orders.OrderID, Products.ProductName,
+	[Order Details].Quantity
 FROM Orders
 LEFT JOIN Employees
-ON Orders.EmployeeID=Employees.EmployeeID
+	ON Orders.EmployeeID=Employees.EmployeeID
 LEFT JOIN [Order Details]
-ON [Order Details].OrderID=Orders.OrderID
+	ON [Order Details].OrderID=Orders.OrderID
 LEFT JOIN Products
-ON [Order Details].ProductID=Products.ProductID
+	ON [Order Details].ProductID=Products.ProductID
 ORDER BY OrderID, ProductID
 
 
@@ -107,7 +107,7 @@ WHERE Orders.CustomerID IS NULL
 SELECT CustomerID
 FROM Customers
 WHERE NOT EXISTS
-(SELECT CustomerID FROM Orders
+	(SELECT CustomerID FROM Orders
 WHERE Customers.CustomerID=Orders.CustomerID)
 
 

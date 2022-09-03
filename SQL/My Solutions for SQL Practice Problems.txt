@@ -1,4 +1,6 @@
 This is my solutions for the book "SQL Practice Problems" by Sylvia Moestl Vasiliki.
+Of course, you will see some similarities with the original solutions provided by the author,
+because I did make reference to the answers when I got stuck or the answers were better solutions than mine.
 
  
 
